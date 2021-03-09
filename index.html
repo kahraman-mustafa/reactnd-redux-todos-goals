@@ -1,9 +1,11 @@
 <<!DOCTYPE html>
-<html>
+    <html>
+
     <head>
         <title>Udacity Todos Goals</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script>
     </head>
+
     <body>
         <div>
             <h1>Todo List</h1>
@@ -91,13 +93,39 @@
                 }
             }
 
-            const store = Redux.createStore(Redux.combineReducers({
-                todos,
-                goals
-            }))
+            function checker(store) {
+                return function (next) {
+                    return function (action) {
+                        if (
+                            action.type === ADD_TODO &&
+                            action.todo.name.toLowerCase().includes('bitcoin')
+                        ) {
+                            return alert("Nope, that is a bad idea");
+                        }
+
+                        if (
+                            action.type === ADD_GOAL &&
+                            action.goal.name.toLowerCase().includes('bitcoin')
+                        ) {
+                            return alert("Nope, that is a bad idea");
+                        }
+
+                        return next(action);
+                    }
+                }
+            }
+
+            const store =
+                Redux.createStore(
+                    Redux.combineReducers({
+                        todos,
+                        goals
+                    }),
+                    Redux.applyMiddleware(checker)
+                );
 
             store.subscribe(() => {
-                const {todos, goals} = store.getState();
+                const { todos, goals } = store.getState();
 
                 document.getElementById('goals').innerHTML = "";
                 document.getElementById('todos').innerHTML = "";
@@ -119,7 +147,7 @@
                 }))
             }
 
-            function addGoal(){
+            function addGoal() {
                 const input = document.getElementById('goal');
                 const name = input.value;
                 input.value = "";
@@ -139,7 +167,7 @@
                 removeBtn.addEventListener('click', onClick);
                 return removeBtn;
             }
-        
+
             function addTodoToDOM(todo) {
                 const node = document.createElement('li');
                 const text = document.createTextNode(todo.name);
@@ -148,7 +176,7 @@
                 });
                 node.appendChild(text);
                 node.appendChild(removeBtn);
-                
+
                 node.style.textDecoration = todo.complete ? "line-through" : "none";
 
                 node.addEventListener("click", () => {
@@ -171,4 +199,5 @@
             }
         </script>
     </body>
-</html>
+
+    </html>
