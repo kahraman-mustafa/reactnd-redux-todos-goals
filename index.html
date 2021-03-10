@@ -3,6 +3,7 @@
 
     <head>
         <title>Udacity Todos Goals</title>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js'></script>
         <script src="https://unpkg.com/react@16.3.0/umd/react.development.js"></script>
         <script src="https://unpkg.com/react-dom@16.3.0/umd/react-dom.development.js"></script>
         <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
@@ -120,9 +121,9 @@
 
             const logger = (store) => (next) => (action) => {
                 console.group(action.type);
-                    console.log("The action: ", action);
-                    const result = next(action);
-                    console.log("The new state: ", store.getState());
+                console.log("The action: ", action);
+                const result = next(action);
+                console.log("The new state: ", store.getState());
                 console.groupEnd()
 
                 return result;
@@ -214,52 +215,103 @@
 
         <script type="text/babel">
 
-            function List(props){
-                return(
+            function List(props) {
+                return (
                     <ul>
-                        <li>List</li>    
+                        {props.items.map((item) => (
+                            <li key={item.id}>
+                                <span>
+                                    {item.name}
+                                </span>
+                            </li>
+                        ))}
                     </ul>
                 )
             }
 
             class Todos extends React.Component {
+                addItem = (e) => {
+                    e.preventDefault();
+                    const name = this.input.value;
+                    this.input.value = "";
+
+                    this.props.store.dispatch(addTodoAction({
+                        id: generateId(),
+                        name,
+                        complete: false
+                    }))
+                }
+
                 render() {
-                    return(
+                    return (
                         <div>
-                            TODOS
-                            <List/>    
+                            <h1>Todo List</h1>
+                            <input
+                                type="text"
+                                placeholder="Add Todo"
+                                ref={(input) => this.input = input}
+                            />
+                            <button onClick={this.addItem}>Add Todo</button>
+                            <List items={this.props.todos} />
                         </div>
                     )
                 }
             }
 
             class Goals extends React.Component {
+                addItem = (e) => {
+                    e.preventDefault();
+                    const name = this.input.value;
+                    this.input.value = "";
+
+                    this.props.store.dispatch(addGoalAction({
+                        id: generateId(),
+                        name
+                    }))
+                }
+
                 render() {
-                    return(
+                    return (
                         <div>
-                            GOALS
-                            <List/>    
+                            <h1>Goal List</h1>
+                            <input
+                                type="text"
+                                placeholder="Add Goal"
+                                ref={(input) => this.input = input}
+                            />
+                            <button onClick={this.addItem}>Add Goal</button>
+                            <List items={this.props.goals} />
                         </div>
                     )
                 }
             }
-        
+
             class App extends React.Component {
-                render(){
-                    return(
+
+                componentDidMount() {
+                    const { store } = this.props;
+
+                    store.subscribe(() => this.forceUpdate());
+                }
+
+                render() {
+                    const { store } = this.props;
+                    const { todos, goals } = store.getState();
+
+                    return (
                         <div>
-                            <Todos/>
-                            <Goals/>    
+                            <Todos todos={todos} store={this.props.store} />
+                            <Goals goals={goals} store={this.props.store} />
                         </div>
                     )
                 }
             }
 
             ReactDOM.render(
-                <App/>,
+                <App store={store} />,
                 document.getElementById('app')
             )
-        
+
         </script>
     </body>
 
