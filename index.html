@@ -172,14 +172,16 @@
             class Todos extends React.Component {
                 addItem = (e) => {
                     e.preventDefault();
-                    const name = this.input.value;
-                    this.input.value = "";
 
-                    this.props.store.dispatch(addTodoAction({
-                        id: generateId(),
-                        name,
-                        complete: false
-                    }))
+                    return API.saveTodo(this.input.value)
+                        .then((todo) => {
+                            this.props.store.dispatch(addTodoAction(todo));
+                            // Difference btw using ref and controllable form to manage form inputs is that:
+                            // Controllable form otomatically updates component state, so then it re-renders UI automatically
+                            // On the other hand, using ref only updates local variables that references, do not auto renders UI
+                            this.input.value = "";
+                        })
+                        .catch(() => alert("An error occured. Try again"));
                 }
 
                 removeItem = (todo) => {
@@ -226,13 +228,16 @@
             class Goals extends React.Component {
                 addItem = (e) => {
                     e.preventDefault();
-                    const name = this.input.value;
-                    this.input.value = "";
 
-                    this.props.store.dispatch(addGoalAction({
-                        id: generateId(),
-                        name
-                    }))
+                    return API.saveGoal(this.input.value)
+                        .then((goal) => {
+                            this.props.store.dispatch(addGoalAction(goal));
+                            // Difference btw using ref and controllable form to manage form inputs is that:
+                            // Controllable form otomatically updates component state, so then it re-renders UI automatically
+                            // On the other hand, using ref only updates local variables that references, do not auto renders UI
+                            this.input.value = "";
+                        })
+                        .catch(() => alert("An error occured. Try again"));
                 }
 
                 removeItem = (goal) => {
