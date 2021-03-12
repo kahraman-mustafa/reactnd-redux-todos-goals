@@ -184,6 +184,12 @@
 
                 removeItem = (todo) => {
                     this.props.store.dispatch(removeTodoAction(todo.id));
+
+                    return API.deleteTodo(todo.id)
+                        .catch(() => {
+                            this.props.store.dispatch(addTodoAction(todo));
+                            alert("An error occured. Try again");
+                    })
                 }
 
                 toggleItem = (id) => {
@@ -223,7 +229,13 @@
                 }
 
                 removeItem = (goal) => {
-                    this.props.store.dispatch(removeTodoAction(goal.id));
+                    this.props.store.dispatch(removeGoalAction(goal.id));
+
+                    return API.deleteGoal(goal.id)
+                        .catch(() => {
+                            this.props.store.dispatch(addGoalAction(goal));
+                            alert("An error occured. Try again");
+                    })
                 }
 
                 render() {
@@ -248,13 +260,13 @@
 
 
                 componentDidMount() {
+                    const { store } = this.props;
+
                     Promise
                         .all([API.fetchTodos(), API.fetchGoals()])
                         .then(([todos, goals]) => {
-                            this.props.store.dispatch(receiveDataAction(todos, goals));
+                            store.dispatch(receiveDataAction(todos, goals));
                     });
-
-                    const { store } = this.props;
 
                     store.subscribe(() => this.forceUpdate());
                 }
