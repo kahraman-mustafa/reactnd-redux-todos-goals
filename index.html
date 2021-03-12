@@ -235,10 +235,36 @@
 
             class App extends React.Component {
 
+                /* 
+                I think we can track the need for loading indicator can be tracked 
+                via App component's own state because this is only a UI concern in the 
+                App component. We set the related attribute in the component state to false 
+                in the coponentDidUpdate to true before calling Promise.all(). 
+                And set it to false after fetching respond from the API, i.e. inside the 
+                Promise.all().then() method after dispatching for fetching data. 
+                There would be no need to make new component. Also, because we don't bother 
+                the store state but components its own state, no need to change anything 
+                in reducers.
+                */
+                constructor(props){
+                    super(props);
+
+                    this.state= {
+                        loading: false
+                    }
+                }
+
                 componentDidMount() {
+                    this.setState((prevState) => {
+                        return {loading: true}
+                    })
+
                     Promise
                         .all([API.fetchTodos(), API.fetchGoals()])
                         .then(([todos, goals]) => {
+                            this.setState((prevState) => {
+                                return {loading: false}
+                            })
                             this.props.store.dispatch(receiveDataAction(todos, goals));
                     });
 
@@ -254,6 +280,10 @@
                 render() {
                     const { store } = this.props;
                     const { todos, goals } = store.getState();
+
+                    if(this.state.loading === true){
+                        return <h3>Loading</h3>
+                    }
 
                     return (
                         <div>
